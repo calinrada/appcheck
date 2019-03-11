@@ -1,7 +1,14 @@
-import requests
-from bs4 import BeautifulSoup
+import gevent
+import gevent.monkey
+
+gevent.monkey.patch_all()
+
 import mechanicalsoup
+import logging
 import injections
+import datetime
+
+from storage.Storage import Storage
 from exception import AuthException
 
 
@@ -13,43 +20,50 @@ class Crawler:
     }
 
     auth_url = 'http://localhost:11985/login.php'
-    scrape_url = 'http://localhost:11985/vulnerabilities/sqli/'
+
+    scrape_urls = [
+        'http://localhost:11985/vulnerabilities/sqli/'
+    ]
 
     browser = None
     authenticated = False
 
+    def __init(self):
+        storage = Storage()
+        self.storage = storage.storage
+
     def run(self):
         self.authenticate()
-        self.inject()
 
-        #print(self.browser.list_links())
-        # s = requests.session()
-        # s.get(self.auth_url)
-        #
-        # if 'user_token' in s.cookies:
-        #     self.login_data['user_token'] = s.cookies['user_token']
-        #
-        # s.post(self.auth_url, data=self.login_data)
-        # url = s.get(url=self.scrape_url)
-        # soup = BeautifulSoup(url.content, 'html.parser')
-        #
-        # print(s.cookies)
-        #
-        # for link in soup.findAll('a'):
-        #     print('\nLink href: ' + link['href'])
-        #     print('Link text: ' + link.text)
-    def inject(self):
-        self.browser.open(self.scrape_url)
+        logging.basicConfig(
+            filename='%s.log' % (datetime.datetime.now().strftime("%Y-%m-%d")),
+            level=logging.DEBUG
+        )
+        jobs = [gevent.spawn(self.spawn, url) for url in self.scrape_urls]
+        gevent.wait(jobs)
+
+    def spawn(self, url):
+        self.inject(url)
+
+    def inject(self, url):
+        self.browser.open(url)
         form = self.browser.select_form('form')
         form['id'] = injections.DATABASE_USERNAME
 
         self.browser.submit_selected()
-
+        # we assume that the presence of `pre` tag means we got some results
         results = self.browser.get_current_page().select('pre')
+        print(len(results))
+
         for result in results:
             print(result)
 
     def authenticate(self):
+        """
+        Authenticate based on known credentials using the form
+        from the login page
+        :return:
+        """
         browser = mechanicalsoup.StatefulBrowser(raise_on_404=True)
         browser.open(self.auth_url)
 
