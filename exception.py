@@ -4,3 +4,7 @@ class AuthException(Exception):
 
 class StorageException(Exception):
     pass
+
+
+class CrawlException(Exception):
+    pass

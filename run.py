@@ -1,7 +1,9 @@
 import os
 import re
 
+from logger import Logger
 from crawler import Crawler
+from exception import AuthException
 
 
 def read_env():
@@ -33,5 +35,8 @@ try:
 
     crawler = Crawler()
     crawler.run();
+except AuthException as e:
+    logger = Logger()
+    logger.error(str(e))
 except Exception as e:
     print(e)

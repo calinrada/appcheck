@@ -1,18 +1,38 @@
+# Requirements
+* Python >= 3.6
+* Virtualenv
+
 # Installation
-1. Download Damn Vulnerable Web Application Docker container from Docker 
-Hub: https://hub.docker.com/r/vulnerables/web-dvwa/
+## Application
+<pre>
+$ git clone https://github.com/calinrada/appcheck.git
+$ cd appcheck
+$ mkvirtualenv -p /usr/bin/python3.6 appcheck
+$ workon appcheck
+</pre>
 
-2. Run it:
-<code>
+## Docker containers
+* Run DVWA Docker container:
+<pre>
 $ docker run --rm -it -p 11985:80 vulnerables/web-dvwa
-</code>
+</pre>
 
-3. Download and run Redis Docker Container:
+* Run Redis Docker Container:
 <pre>
 $ docker run --name some-redis -p 6380:6379 -d redis redis-server --appendonly yes
 </pre>
 
-3. Clone the crawler from https://github.com/calinrada/appcheck: 
-<pre>
-$ git clone https://github.com/calinrada/appcheck.git
-</pre>
+# Run it
+
+<code>
+$ python run.py
+</code>
+
+or in background
+
+<code>
+$ nohup python run.py >> debug.log &
+</code>
+
+# Todo
+* Build a docker image containing this app
