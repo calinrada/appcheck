@@ -14,7 +14,6 @@ def read_env():
     try:
         with open('.env') as f:
             content = f.read()
-            # raise Exception(content)
     except IOError:
         content = ''
 
@@ -30,13 +29,17 @@ def read_env():
                 val = re.sub(r'\\(.)', r'\1', m3.group(1))
             os.environ.setdefault(key, val)
 
+
+logger = Logger()
+
 try:
     read_env()
 
     crawler = Crawler()
-    crawler.run();
+    crawler.run()
 except AuthException as e:
-    logger = Logger()
-    logger.error(str(e))
+    logger.error('Authentication error: %s' % str(e))
+except AttributeError as e:
+    logger.error('Attribute error: %s' % str(e))
 except Exception as e:
-    print(e)
+    logger.error('Unknown error: %s' % str(e))

@@ -10,3 +10,7 @@ class AbstractStorage(ABC):
     @abstractmethod
     def get(self, key):
         pass
+
+    @abstractmethod
+    def exists(self, **kwargs):
+        pass

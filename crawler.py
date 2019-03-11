@@ -1,19 +1,21 @@
+import os
 import gevent
 import gevent.monkey
 
 gevent.monkey.patch_all()
 
-import injections
+from injections import INJECTION_TYPES
 from storage.Storage import Storage
 from auth import Auth
 
 
 class Crawler:
     browser = None
+    storage = None
 
-    def __init(self):
-        storage = Storage()
-        self.storage = storage.storage
+    def __init__(self):
+        storage = Storage(name=os.environ.get('STORAGE_ENGINE'))
+        self.storage = storage.get_storage()
 
     def run(self):
         auth = Auth()
@@ -24,15 +26,16 @@ class Crawler:
 
     def inject(self, url):
         self.browser.open(url)
-        form = self.browser.select_form('form')
-        form['id'] = injections.DATABASE_USERNAME
+        for key, value in INJECTION_TYPES.items():
+            form = self.browser.select_form('form')
+            form['id'] = value
 
-        self.browser.submit_selected()
-        # we assume that the presence of `pre` tag means we got some results
-        results = self.browser.get_current_page().select('pre')
+            self.browser.submit_selected()
+            # we assume that the presence of `pre` tag means we got some results
+            results = self.browser.get_current_page().select('pre')
 
-        for result in results:
-            print(result)
+            for result in results:
+                self.storage.set(key, str(result))
 
     @staticmethod
     def get_scrape_urls():
