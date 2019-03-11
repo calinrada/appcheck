@@ -8,11 +8,10 @@ class RedisStorage(AbstractStorage):
     __storage = None
 
     def __init__(self):
-
         self.__storage = redis.Redis(
-            host=os.environ.get('STORAGE_ENGINE_HOST', 'unknown'),
-            port=os.environ.get('STORAGE_ENGINE_PORT', -1),
-            db=os.environ.get('STORAGE_ENGINE_DB_NAME', -1)
+            host=os.environ.get('STORAGE_ENGINE_HOST', 'localhost'),
+            port=os.environ.get('STORAGE_ENGINE_PORT', 6379),
+            db=os.environ.get('STORAGE_ENGINE_DB_NAME', 0)
         )
 
     def get_storage(self):

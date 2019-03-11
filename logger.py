@@ -11,3 +11,6 @@ class Logger:
 
     def error(self, message):
         logging.error(message)
+
+    def log(self, message):
+        logging.info(message)
